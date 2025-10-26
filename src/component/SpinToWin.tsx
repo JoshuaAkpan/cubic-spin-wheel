@@ -38,10 +38,16 @@ export default function SpinToWin() {
   const [prizeNumber, setPrizeNumber] = useState<number>(0);
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
   const { width, height } = useWindowSize();
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const handleStart = (): void => {
     if (!email.trim()) {
       toast.error("Please enter your email");
+      return;
+    }
+
+    if (!emailRegex.test(email)) {
+      toast.error("Please enter a valid email address");
       return;
     }
 
