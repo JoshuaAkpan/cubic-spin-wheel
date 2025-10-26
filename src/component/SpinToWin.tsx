@@ -103,7 +103,7 @@ export default function SpinToWin() {
                 borderBottom: "28px solid black", // color of the pointer tip
                 filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.15))",
           
-                zIndex: 10,
+                // zIndex: 10,
               },
             }}
             // spin tuning (optional)
