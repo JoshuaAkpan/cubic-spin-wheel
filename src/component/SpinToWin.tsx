@@ -6,6 +6,8 @@ import Confetti from "react-confetti";
 import { useWindowSize } from "react-use";
 import { StyleType } from "react-custom-roulette/dist/components/Wheel/types";
 import dynamic from "next/dynamic";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Wheel = dynamic(
   () => import("react-custom-roulette").then((mod) => mod.Wheel),
@@ -39,7 +41,7 @@ export default function SpinToWin() {
 
   const handleStart = (): void => {
     if (!email.trim()) {
-      alert("Please enter your email");
+      toast.error("Please enter your email");
       return;
     }
 
@@ -65,7 +67,9 @@ export default function SpinToWin() {
 
   return (
     <div className="bg-red-40 h-screen flex flex-col items-center justify-center space-y-8 p-6">
-      {showConfetti && <Confetti width={width} height={height} className="z-100" />}
+      {showConfetti && (
+        <Confetti width={width} height={height} className="z-100" />
+      )}
 
       {/* SPINNING STAGE */}
       <div className="flex flex-col items-center space-y-6">
@@ -102,7 +106,7 @@ export default function SpinToWin() {
                 borderRight: "16px solid transparent",
                 borderBottom: "28px solid black", // color of the pointer tip
                 filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.15))",
-          
+
                 // zIndex: 10,
               },
             }}
@@ -153,13 +157,25 @@ export default function SpinToWin() {
           </p>
 
           <button
-            onClick={() => alert("Redirect to claim page or API call")}
+            onClick={() => toast.success("Redirect to whatsapp dm")}
             className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-xl"
           >
             Claim Now
           </button>
         </div>
       )}
+      <ToastContainer
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={true}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="colored"
+      />
     </div>
   );
 }
