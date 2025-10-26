@@ -65,7 +65,7 @@ export default function SpinToWin() {
 
   return (
     <div className="bg-red-40 h-screen flex flex-col items-center justify-center space-y-8 p-6">
-      {showConfetti && <Confetti width={width} height={height} />}
+      {showConfetti && <Confetti width={width} height={height} className="z-100" />}
 
       {/* SPINNING STAGE */}
       <div className="flex flex-col items-center space-y-6">
