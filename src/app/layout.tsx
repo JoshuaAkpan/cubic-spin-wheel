@@ -2,6 +2,16 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
+// import localFont from "next/font/local";
+
+// const roboto = localFont({
+//   src: [
+//     { path: "/fonts/Roboto-Regular.woff2", weight: "400" },
+//     { path: "/fonts/Roboto-Bold.woff2", weight: "700" },
+//   ],
+//   variable: "--font-roboto",
+// });
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

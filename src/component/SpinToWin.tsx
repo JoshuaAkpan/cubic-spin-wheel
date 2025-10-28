@@ -8,6 +8,7 @@ import { StyleType } from "react-custom-roulette/dist/components/Wheel/types";
 import dynamic from "next/dynamic";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Image from "next/image";
 
 const Wheel = dynamic(
   () => import("react-custom-roulette").then((mod) => mod.Wheel),
@@ -52,6 +53,7 @@ export default function SpinToWin() {
     }
 
     const newPrize = Math.floor(Math.random() * prizes.length);
+
     setPrizeNumber(newPrize);
     setMustSpin(true);
     // setStage("spinning");
@@ -59,7 +61,14 @@ export default function SpinToWin() {
 
   const handleStop = (): void => {
     setMustSpin(false);
-    setSpinResult(prizes[prizeNumber].option);
+
+    const n = prizes.length;
+    const OFFSET = Math.floor(n / 2) - (n % 2 === 0 ? 1 : 0);
+
+    // If you ever change pointer angle, you can tune OFFSET here.
+    const resultIndex = (prizeNumber + OFFSET + n) % n;
+
+    setSpinResult(prizes[resultIndex].option);
     setShowConfetti(true);
     setStage("result");
   };
@@ -72,80 +81,105 @@ export default function SpinToWin() {
   }, [showConfetti]);
 
   return (
-    <div className="bg-red-40 h-screen flex flex-col items-center justify-center space-y-8 p-6">
+    <div className="bg-red-40 h-full flex flex-col items-center justify-center space-y-8 p-6">
       {showConfetti && (
-        <Confetti width={width} height={height} className="z-100" />
+        <Confetti
+          width={width}
+          height={height}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            zIndex: 9999,
+            pointerEvents: "none",
+          }}
+        />
       )}
 
-      {/* SPINNING STAGE */}
       <div className="flex flex-col items-center space-y-6">
-        <div className="flex flex-col items-center ">
+        <div className="flex flex-col items-center relative">
           <Wheel
             mustStartSpinning={mustSpin}
             prizeNumber={prizeNumber}
             data={prizes}
-            backgroundColors={["#6D28D9", "#7C3AED"]}
+            backgroundColors={["#E67220", "#070606"]}
             textColors={["#FFFFFF"]}
-            // make the text sit inside the wheel and not poke out
-            perpendicularText={false} // <- important: don't rotate text perpendicular
-            textDistance={50} // adjust [0..100] (smaller = closer to center)
-            fontSize={14} // reduce font size so long labels wrap inside slices
-            // borders / radius lines for the neat look
-            outerBorderColor="#ffffff"
-            outerBorderWidth={2}
-            innerRadius={5}
-            innerBorderColor="#ffffff"
-            innerBorderWidth={6}
-            radiusLineColor="#ffffff"
-            radiusLineWidth={2}
-            // pointerProps - override the default pointer with a triangle that points inward
+            perpendicularText={false}
+            textDistance={55}
+            fontSize={13}
+            
+            // borders
+            outerBorderColor="#d8af30"
+            outerBorderWidth={5}
+            innerRadius={10}
+            // innerBorderColor="#ffffff"
+            // innerBorderWidth={6}
+            // radiusLineColor="#ffffff"
+            // radiusLineWidth={5}
+            // pointerProps
             pointerProps={{
+              src: "images/cubic-wheel-pointer.svg",
               style: {
                 position: "absolute",
-                top: "95%",
+                top: "94%",
                 left: "50%",
                 transform: "translateX(-50%) rotate(0deg)",
-                width: 0,
-                height: 0,
-                // triangle pointing down (borderBottom is the visible color)
-                borderLeft: "16px solid transparent",
-                borderRight: "16px solid transparent",
-                borderBottom: "28px solid black", // color of the pointer tip
-                filter: "drop-shadow(0 2px 4px rgba(0,0,0,0.15))",
-
-                // zIndex: 10,
+                width: "40px",
+                height: "40px",
               },
             }}
-            // spin tuning (optional)
+            // spin tuning
             spinDuration={0.9}
             onStopSpinning={handleStop}
           />
+
+          {/* Center logo */}
+          <div
+            style={{
+              position: "absolute",
+              top: "53%",
+              left: "52%",
+              transform: "translate(-40%, -38%)",
+              width: "50px",
+              height: "50px",
+              pointerEvents: "none",
+              zIndex: "100",
+            }}
+          >
+            <Image
+              src="/images/cubic-wheel-midLogo.svg"
+              alt="Wheel Center"
+              width={25}
+              height={25}
+            />
+          </div>
         </div>
 
         {/* FORM STAGE */}
         {stage === "spinning" && (
-          <div className="w-full space-y-4 text-">
-            <h1 className="text-2xl font-bold text-purple-700">
-              Brandpop Customer Service Week 2025
+          <div className="w-[95%] mt-6">
+            <h1 className="text-2xl font-bold text-black text-center mb- ">
+              Cubic Customer Service Week 2025
             </h1>
-            <p className="text-gray-600 text-sm">
-              Win amazing prizes this week! Enter your email to spin the wheel.
+            <p className="text-black text-sm text-center mb-4">
+              Win amazing prizes this customer service week with the spin the
+              wheel challenge.
             </p>
 
             <input
               type="email"
-              placeholder="Enter your email"
+              placeholder="Enter your email..."
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full border rounded-xl px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full text-sm border-2 bg-white border-[#E67220] rounded-[7px] mb-2 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#d8af30]"
             />
 
             <button
               onClick={handleStart}
               disabled={mustSpin}
-              className="w-full bg-[#6D28D9] hover:bg-[#7C3AED] text-white font-semibold py-3 rounded-xl"
+              className="w-full bg-[#070606] hover:bg-[#241f1f] text-[#FFB825] font-semibold py-3 rounded-[7px]"
             >
-              {mustSpin ? "Spinning..." : "Spin the Wheel"}
+              {mustSpin ? "Spinning..." : "Spin Now"}
             </button>
           </div>
         )}
@@ -153,18 +187,18 @@ export default function SpinToWin() {
 
       {/* RESULT STAGE */}
       {stage === "result" && (
-        <div className="max-w-sm w-full bg-white shadow-lg rounded-2xl p-6 space-y-4">
-          <h2 className="text-2xl font-bold text-purple-700">
+        <div className="w-[95%] mt-6 text-center">
+          <h2 className="text-2xl font-bold text-[070606]">
             🎉 Surprise Gift Awaits!
           </h2>
-          <p className="text-gray-700 text-sm">
+          <p className="text-gray-700 text-sm mb-4">
             You&apos;ve won:
-            <span className="font-semibold text-purple-600">{spinResult}</span>
+            <span className="font-semibold text-[#E67220]">{spinResult}</span>
           </p>
 
           <button
             onClick={() => toast.success("Redirect to whatsapp dm")}
-            className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 rounded-xl"
+            className="w-full bg-[#070606] hover:bg-[#241f1f] text-[#FFB825] font-semibold py-3 rounded-[7px]"
           >
             Claim Now
           </button>
@@ -180,7 +214,8 @@ export default function SpinToWin() {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="colored"
+        theme="light"
+
       />
     </div>
   );
