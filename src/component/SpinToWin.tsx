@@ -1,14 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
-// import { Wheel } from "react-custom-roulette";
 import Confetti from "react-confetti";
 import { useWindowSize } from "react-use";
 import { StyleType } from "react-custom-roulette/dist/components/Wheel/types";
 import dynamic from "next/dynamic";
-import { ToastContainer, toast } from "react-toastify";
+import { Bounce, ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Wheel = dynamic(
   () => import("react-custom-roulette").then((mod) => mod.Wheel),
@@ -56,7 +56,12 @@ export default function SpinToWin() {
 
     setPrizeNumber(newPrize);
     setMustSpin(true);
-    // setStage("spinning");
+  };
+
+  const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      handleStart();
+    }
   };
 
   const handleStop = (): void => {
@@ -65,7 +70,6 @@ export default function SpinToWin() {
     const n = prizes.length;
     const OFFSET = Math.floor(n / 2) - (n % 2 === 0 ? 1 : 0);
 
-    // If you ever change pointer angle, you can tune OFFSET here.
     const resultIndex = (prizeNumber + OFFSET + n) % n;
 
     setSpinResult(prizes[resultIndex].option);
@@ -97,7 +101,7 @@ export default function SpinToWin() {
       )}
 
       <div className="flex flex-col items-center space-y-6">
-        <div className="flex flex-col items-center relative">
+        <div className="flex flex-col items-center justify-center relative">
           <Wheel
             mustStartSpinning={mustSpin}
             prizeNumber={prizeNumber}
@@ -107,116 +111,117 @@ export default function SpinToWin() {
             perpendicularText={false}
             textDistance={55}
             fontSize={13}
-            
-            // borders
             outerBorderColor="#d8af30"
             outerBorderWidth={5}
             innerRadius={10}
-            // innerBorderColor="#ffffff"
-            // innerBorderWidth={6}
-            // radiusLineColor="#ffffff"
-            // radiusLineWidth={5}
-            // pointerProps
             pointerProps={{
               src: "images/cubic-wheel-pointer.svg",
               style: {
                 position: "absolute",
                 top: "94%",
                 left: "50%",
-                transform: "translateX(-50%) rotate(0deg)",
+                transform: "translateX(-50%)",
                 width: "40px",
                 height: "40px",
               },
             }}
-            // spin tuning
             spinDuration={0.9}
             onStopSpinning={handleStop}
           />
 
-          {/* Center logo */}
-          <div
-            style={{
-              position: "absolute",
-              top: "53%",
-              left: "52%",
-              transform: "translate(-40%, -38%)",
-              width: "50px",
-              height: "50px",
-              pointerEvents: "none",
-              zIndex: "100",
-            }}
-          >
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
             <Image
               src="/images/cubic-wheel-midLogo.svg"
               alt="Wheel Center"
-              width={25}
-              height={25}
+              width={0}
+              height={0}
+              sizes="20vw"
+              style={{ width: "7%", height: "auto" }}
+              className="object-contain"
             />
           </div>
         </div>
 
-        {/* FORM STAGE */}
-        {stage === "spinning" && (
-          <div className="w-[95%] mt-6">
-            <h1 className="text-2xl font-bold text-black text-center mb- ">
-              Cubic Customer Service Week 2025
-            </h1>
-            <p className="text-black text-sm text-center mb-4">
-              Win amazing prizes this customer service week with the spin the
-              wheel challenge.
-            </p>
-
-            <input
-              type="email"
-              placeholder="Enter your email..."
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full text-sm border-2 bg-white border-[#E67220] rounded-[7px] mb-2 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#d8af30]"
-            />
-
-            <button
-              onClick={handleStart}
-              disabled={mustSpin}
-              className="w-full bg-[#070606] hover:bg-[#241f1f] text-[#FFB825] font-semibold py-3 rounded-[7px]"
+        <AnimatePresence mode="wait">
+          {stage === "spinning" && (
+            <motion.div
+              key="form"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+              className="w-[95%] mt-6"
             >
-              {mustSpin ? "Spinning..." : "Spin Now"}
-            </button>
-          </div>
-        )}
+              <h1 className="text-2xl font-bold text-black text-center mb-2">
+                Cubic Customer Service Week 2025
+              </h1>
+              <p className="text-black text-sm text-center mb-4">
+                Win amazing prizes this customer service week with the spin the
+                wheel challenge.
+              </p>
+
+              <input
+                type="email"
+                placeholder="Enter your email..."
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onKeyDown={handleKeyPress}
+                className="w-full text-sm border-2 bg-white border-[#E67220] rounded-[7px] mb-2 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#d8af30]"
+              />
+
+              <button
+                onClick={handleStart}
+                disabled={mustSpin}
+                className="w-full bg-[#070606] hover:bg-[#241f1f] text-[#FFB825] font-semibold py-3 rounded-[7px]"
+              >
+                {mustSpin ? "Spinning..." : "Spin Now"}
+              </button>
+            </motion.div>
+          )}
+
+          {stage === "result" && (
+            <motion.div
+              key="result"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.5, ease: "easeInOut" }}
+              className="w-[95%] mt-6 text-center"
+            >
+              <h2 className="text-2xl font-bold text-[#070606]">
+                🎉 Surprise Gift Awaits!
+              </h2>
+              <p className="text-gray-700 text-sm mb-4">
+                You&apos;ve won:&nbsp;
+                <span className="font-semibold text-[#E67220]">
+                  {spinResult}
+                </span>
+              </p>
+
+              <button
+                onClick={() => toast.success("Redirect to WhatsApp DM")}
+                className="w-full bg-[#070606] hover:bg-[#241f1f] text-[#FFB825] font-semibold py-3 rounded-[7px]"
+              >
+                Claim Now
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <ToastContainer
+          position="top-center"
+          autoClose={3000}
+          hideProgressBar={true}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+          transition={Bounce}
+        />
       </div>
-
-      {/* RESULT STAGE */}
-      {stage === "result" && (
-        <div className="w-[95%] mt-6 text-center">
-          <h2 className="text-2xl font-bold text-[070606]">
-            🎉 Surprise Gift Awaits!
-          </h2>
-          <p className="text-gray-700 text-sm mb-4">
-            You&apos;ve won:
-            <span className="font-semibold text-[#E67220]">{spinResult}</span>
-          </p>
-
-          <button
-            onClick={() => toast.success("Redirect to whatsapp dm")}
-            className="w-full bg-[#070606] hover:bg-[#241f1f] text-[#FFB825] font-semibold py-3 rounded-[7px]"
-          >
-            Claim Now
-          </button>
-        </div>
-      )}
-      <ToastContainer
-        position="top-center"
-        autoClose={3000}
-        hideProgressBar={true}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-
-      />
     </div>
   );
 }

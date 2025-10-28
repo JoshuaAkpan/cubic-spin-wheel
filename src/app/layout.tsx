@@ -1,25 +1,16 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-// import localFont from "next/font/local";
+import localFont from "next/font/local";
 
-// const roboto = localFont({
-//   src: [
-//     { path: "/fonts/Roboto-Regular.woff2", weight: "400" },
-//     { path: "/fonts/Roboto-Bold.woff2", weight: "700" },
-//   ],
-//   variable: "--font-roboto",
-// });
-
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const musticaPro = localFont({
+  src: [
+    { path: "../../public/fonts/MusticaPro-Light.otf", weight: "300", style: "normal" },
+    { path: "../../public/fonts/MusticaPro-Regular.otf", weight: "400", style: "normal" },
+    { path: "../../public/fonts/MusticaPro-Medium.otf", weight: "500", style: "normal" },
+    { path: "../../public/fonts/MusticaPro-SemiBold.otf", weight: "600", style: "normal" },
+  ],
+  variable: "--font-musticapro",
 });
 
 export const metadata: Metadata = {
@@ -34,11 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
-      </body>
+      <body className={`${musticaPro.className} antialiased`}>{children}</body>
     </html>
   );
 }
