@@ -9,6 +9,7 @@ import { Bounce, ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import { createPortal } from "react-dom";
 
 const Wheel = dynamic(
   () => import("react-custom-roulette").then((mod) => mod.Wheel),
@@ -65,16 +66,20 @@ export default function SpinToWin() {
   };
 
   const handleStop = (): void => {
-    setMustSpin(false);
+    setTimeout(() => {
+      setMustSpin(false);
 
-    const n = prizes.length;
-    const OFFSET = Math.floor(n / 2) - (n % 2 === 0 ? 1 : 0);
+      const n = prizes.length;
+      const OFFSET = Math.floor(n / 2) - (n % 2 === 0 ? 1 : 0);
+      const resultIndex = (prizeNumber + OFFSET + n) % n;
 
-    const resultIndex = (prizeNumber + OFFSET + n) % n;
+      setSpinResult(prizes[resultIndex].option);
+      setShowConfetti(true);
 
-    setSpinResult(prizes[resultIndex].option);
-    setShowConfetti(true);
-    setStage("result");
+      setTimeout(() => {
+        setStage("result");
+      }, 300);
+    }, 200);
   };
 
   useEffect(() => {
@@ -85,20 +90,23 @@ export default function SpinToWin() {
   }, [showConfetti]);
 
   return (
-    <div className="bg-red-40 h-full flex flex-col items-center justify-center space-y-8 p-6">
-      {showConfetti && (
-        <Confetti
-          width={width}
-          height={height}
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            zIndex: 9999,
-            pointerEvents: "none",
-          }}
-        />
-      )}
+    <div className="h-full flex flex-col items-center justify-center space-y-8 p-6">
+      {showConfetti &&
+        typeof window !== "undefined" &&
+        createPortal(
+          <Confetti
+            width={width}
+            height={height}
+            style={{
+              position: "fixed",
+              top: 0,
+              left: 0,
+              zIndex: 9999,
+              pointerEvents: "none",
+            }}
+          />,
+          document.body
+        )}
 
       <div className="flex flex-col items-center space-y-6">
         <div className="flex flex-col items-center justify-center relative">
@@ -119,7 +127,7 @@ export default function SpinToWin() {
               style: {
                 position: "absolute",
                 top: "94%",
-                left: "50%",
+                left: "52%",
                 transform: "translateX(-50%)",
                 width: "40px",
                 height: "40px",
@@ -152,7 +160,7 @@ export default function SpinToWin() {
               transition={{ duration: 0.5, ease: "easeInOut" }}
               className="w-[95%] mt-6"
             >
-              <h1 className="text-2xl font-bold text-black text-center mb-2">
+              <h1 className="text-2xl font-semibold text-black text-center mb-2">
                 Cubic Customer Service Week 2025
               </h1>
               <p className="text-black text-sm text-center mb-4">
@@ -166,13 +174,14 @@ export default function SpinToWin() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 onKeyDown={handleKeyPress}
-                className="w-full text-sm border-2 bg-white border-[#E67220] rounded-[7px] mb-2 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#d8af30]"
+                disabled={mustSpin}
+                className="w-full text-sm border-2 bg-white border-[#E67220] rounded-[5px] mb-2 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#d8af30]"
               />
 
               <button
                 onClick={handleStart}
                 disabled={mustSpin}
-                className="w-full bg-[#070606] hover:bg-[#241f1f] text-[#FFB825] font-semibold py-3 rounded-[7px]"
+                className="w-full cursor-pointer bg-[#070606] hover:bg-[#241f1f] text-[#FFB825] font-semibold py-3 rounded-[5px]"
               >
                 {mustSpin ? "Spinning..." : "Spin Now"}
               </button>
@@ -199,29 +208,32 @@ export default function SpinToWin() {
               </p>
 
               <button
-                onClick={() => toast.success("Redirect to WhatsApp DM")}
-                className="w-full bg-[#070606] hover:bg-[#241f1f] text-[#FFB825] font-semibold py-3 rounded-[7px]"
+                onClick={() => toast.success("Redirect to WhatsApp")}
+                className="w-full cursor-pointer bg-[#070606] hover:bg-[#241f1f] text-[#FFB825] font-semibold py-3 rounded-[5px]"
               >
                 Claim Now
               </button>
             </motion.div>
           )}
         </AnimatePresence>
-
-        <ToastContainer
-          position="top-center"
-          autoClose={3000}
-          hideProgressBar={true}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-          transition={Bounce}
-        />
       </div>
+      {typeof window !== "undefined" &&
+        createPortal(
+          <ToastContainer
+            position="top-center"
+            autoClose={3000}
+            hideProgressBar={true}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="light"
+            transition={Bounce}
+          />,
+          document.body
+        )}
     </div>
   );
 }
