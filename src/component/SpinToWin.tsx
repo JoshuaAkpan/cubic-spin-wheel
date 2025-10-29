@@ -98,7 +98,7 @@ export default function SpinToWin() {
   return (
     <div className="h-full flex flex-col items-center justify-center space-y-8 p-6">
       {showConfetti &&
-        typeof window !== "undefined" &&
+        isMounted &&
         createPortal(
           <Confetti
             width={width}
@@ -224,7 +224,7 @@ export default function SpinToWin() {
           )}
         </AnimatePresence>
       </div>
-      {typeof window !== "undefined" &&
+      {isMounted &&
         createPortal(
           <ToastContainer
             position="top-center"
