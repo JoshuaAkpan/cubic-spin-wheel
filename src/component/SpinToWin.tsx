@@ -39,8 +39,14 @@ export default function SpinToWin() {
   const [mustSpin, setMustSpin] = useState<boolean>(false);
   const [prizeNumber, setPrizeNumber] = useState<number>(0);
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
+  const [isMounted, setIsMounted] = useState<boolean>(false);
+
   const { width, height } = useWindowSize();
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleStart = (): void => {
     if (!email.trim()) {
@@ -79,7 +85,7 @@ export default function SpinToWin() {
       setTimeout(() => {
         setStage("result");
       }, 300);
-    }, 200);
+    }, 500);
   };
 
   useEffect(() => {
