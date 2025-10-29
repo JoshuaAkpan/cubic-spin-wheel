@@ -127,13 +127,14 @@ export default function SpinToWin() {
               style: {
                 position: "absolute",
                 top: "94%",
-                left: "52%",
+                left: "53%",
                 transform: "translateX(-50%)",
                 width: "40px",
                 height: "40px",
               },
             }}
             spinDuration={0.9}
+            disableInitialAnimation={true}
             onStopSpinning={handleStop}
           />
 
