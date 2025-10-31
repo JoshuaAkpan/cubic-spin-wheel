@@ -50,11 +50,11 @@ export default function SpinToWin() {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const GOOGLE_FORM_FIELD_NAMES = {
-    Email: "entry.108326536",
+    Email: "entry.1705414739",
   };
 
   const GOOGLE_FORM_ACTION_URL =
-    "https://docs.google.com/forms/u/0/d/e/1FAIpQLSc9y_CmJJld-BpgyCl5DuVDcyq6OqjaI04fEum7kVAJ9t1fWg/formResponse";
+    "https://docs.google.com/forms/u/0/d/e/1FAIpQLSfr-Axz5izgoAChtSso2PMPxynRtbHj91fEW-d51IEQJNlSHg/formResponse";
 
   useEffect(() => {
     setIsMounted(true);
@@ -65,7 +65,7 @@ export default function SpinToWin() {
 
     const data = {
       [GOOGLE_FORM_FIELD_NAMES.Email]: emailValue,
-      "entry.1211645471": prize,
+      "entry.710184327": prize,
     };
 
     const formBody = new URLSearchParams(data).toString();
