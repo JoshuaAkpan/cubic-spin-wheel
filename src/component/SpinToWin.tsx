@@ -26,12 +26,12 @@ interface WheelData {
 }
 
 const prizes: WheelData[] = [
-  { option: "5% Discount", style: { fontSize: 15 } }, // 3%
-  { option: "Free Delivery", style: { fontSize: 15 } }, // 5%
-  { option: "10% Discount", style: { fontSize: 15 } }, // 2%
-  { option: "Spin Again", style: { fontSize: 15 } }, // 50%
-  { option: "Better Luck next time", style: { fontSize: 14 } }, // 30%
-  { option: "Merch from cubic prints", style: { fontSize: 14 } }, // 10%
+  { option: "5% Discount", style: { fontSize: 15 } }, // 13%
+  { option: "Free Delivery", style: { fontSize: 15 } }, // 20%
+  { option: "10% Discount", style: { fontSize: 15 } }, // 7%
+  { option: "Spin Again", style: { fontSize: 15 } }, // 20%
+  { option: "Better Luck next time", style: { fontSize: 14 } }, // 20%
+  { option: "Merch from cubic prints", style: { fontSize: 14 } }, // 20%
 ];
 
 type Stage = "form" | "spinning" | "result";
@@ -85,7 +85,7 @@ export default function SpinToWin() {
 
   const pickWeightedPrize = (prizes: WheelData[]): number => {
     // define weights according to `prizes` array
-    const weights = [10, 30, 50, 3, 2, 5];
+    const weights = [20, 20, 20, 7, 20, 13];
     const total = weights.reduce((a, b) => a + b, 0);
     const rand = Math.random() * total;
 
