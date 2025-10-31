@@ -243,7 +243,7 @@ export default function SpinToWin() {
                 Spin the wheel to win amazing prices
               </p>
 
-              <p className="text-[#292524] text-sm text-center mb-4 flex items-center justify-center gap-2">
+              <p className="text-[#292524] text-sm text-left mb-4 flex items-center justify-center gap-2">
                 <Info size={14} />
                 <span>
                   Discounts and Free delivery are available on Next order
