@@ -27,7 +27,7 @@ interface WheelData {
 
 const prizes: WheelData[] = [
   { option: "5% Discount", style: { fontSize: 15 } }, // 13%
-  { option: "Free Delivery", style: { fontSize: 15 } }, // 20%
+  { option: "Free Delivery (Lagos)", style: { fontSize: 15 } }, // 20%
   { option: "10% Discount", style: { fontSize: 15 } }, // 7%
   { option: "Spin Again", style: { fontSize: 15 } }, // 20%
   { option: "Better Luck next time", style: { fontSize: 14 } }, // 20%
