@@ -10,11 +10,15 @@ import "react-toastify/dist/ReactToastify.css";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { createPortal } from "react-dom";
+import Link from "next/link";
+import "react-roulette-pro/dist/index.css";
+import { Info } from "lucide-react";
+// import { Wheel } from "react-custom-roulette";
 
 const Wheel = dynamic(
   () => import("react-custom-roulette").then((mod) => mod.Wheel),
   { ssr: false }
-);
+) as React.ComponentType<any>;
 
 interface WheelData {
   option: string;
@@ -22,12 +26,12 @@ interface WheelData {
 }
 
 const prizes: WheelData[] = [
-  { option: "₦10,000 off your next order" },
-  { option: "Free delivery coupon" },
-  { option: "Surprise gift box" },
-  { option: "₦5,000 shopping voucher" },
-  { option: "Buy 1 get 1 free" },
-  { option: "Discount up to 20%" },
+  { option: "5% Discount", style: { fontSize: 15 } }, // 3%
+  { option: "Free Delivery", style: { fontSize: 15 } }, // 5%
+  { option: "10% Discount", style: { fontSize: 15 } }, // 2%
+  { option: "Spin Again", style: { fontSize: 15 } }, // 50%
+  { option: "Better Luck next time", style: { fontSize: 14 } }, // 30%
+  { option: "Merch from cubic prints", style: { fontSize: 14 } }, // 10%
 ];
 
 type Stage = "form" | "spinning" | "result";
@@ -40,13 +44,58 @@ export default function SpinToWin() {
   const [prizeNumber, setPrizeNumber] = useState<number>(0);
   const [showConfetti, setShowConfetti] = useState<boolean>(false);
   const [isMounted, setIsMounted] = useState<boolean>(false);
+  const [status, setStatus] = useState<string>("");
 
   const { width, height } = useWindowSize();
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+  const GOOGLE_FORM_FIELD_NAMES = {
+    Email: "entry.108326536",
+  };
+
+  const GOOGLE_FORM_ACTION_URL =
+    "https://docs.google.com/forms/u/0/d/e/1FAIpQLSc9y_CmJJld-BpgyCl5DuVDcyq6OqjaI04fEum7kVAJ9t1fWg/formResponse";
+
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  const handleSubmitToGoogle = async (emailValue: string, prize: string) => {
+    if (!emailValue) return;
+
+    const data = {
+      [GOOGLE_FORM_FIELD_NAMES.Email]: emailValue,
+      "entry.1211645471": prize,
+    };
+
+    const formBody = new URLSearchParams(data).toString();
+
+    try {
+      await fetch(GOOGLE_FORM_ACTION_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        mode: "no-cors",
+        body: formBody,
+      });
+      console.log("✅ Saved to Google Sheet");
+    } catch (error) {
+      console.error("❌ Network error:", error);
+    }
+  };
+
+  const pickWeightedPrize = (prizes: WheelData[]): number => {
+    // define weights according to `prizes` array
+    const weights = [10, 30, 50, 3, 2, 5];
+    const total = weights.reduce((a, b) => a + b, 0);
+    const rand = Math.random() * total;
+
+    let sum = 0;
+    for (let i = 0; i < weights.length; i++) {
+      sum += weights[i];
+      if (rand <= sum) return i;
+    }
+    return weights.length - 1;
+  };
 
   const handleStart = (): void => {
     if (!email.trim()) {
@@ -59,7 +108,7 @@ export default function SpinToWin() {
       return;
     }
 
-    const newPrize = Math.floor(Math.random() * prizes.length);
+    const newPrize = pickWeightedPrize(prizes);
 
     setPrizeNumber(newPrize);
     setMustSpin(true);
@@ -71,16 +120,30 @@ export default function SpinToWin() {
     }
   };
 
-  const handleStop = (): void => {
-    setTimeout(() => {
+  const handleStop = async (): Promise<void> => {
+    setTimeout(async () => {
       setMustSpin(false);
 
       const n = prizes.length;
       const OFFSET = Math.floor(n / 2) - (n % 2 === 0 ? 1 : 0);
       const resultIndex = (prizeNumber + OFFSET + n) % n;
+      const result = prizes[resultIndex].option;
 
-      setSpinResult(prizes[resultIndex].option);
+      setSpinResult(result);
+
+      if (result === "Spin Again") {
+        setTimeout(() => {
+          handleStart();
+        }, 1500);
+        return;
+      }
+
       setShowConfetti(true);
+
+      await handleSubmitToGoogle(email.trim(), result);
+
+      toast.success("Your entry was recorded!");
+      setStatus("Success! Data saved to Google Sheet.");
 
       setTimeout(() => {
         setStage("result");
@@ -120,13 +183,19 @@ export default function SpinToWin() {
             mustStartSpinning={mustSpin}
             prizeNumber={prizeNumber}
             data={prizes}
-            backgroundColors={["#E67220", "#070606"]}
+            backgroundColors={[
+              "#F36523",
+              "#4BAAF3",
+              "#6F2D91",
+              "#ED1B24",
+              "#0072BB",
+              "#8DC73F",
+            ]}
             textColors={["#FFFFFF"]}
             perpendicularText={false}
-            textDistance={55}
-            fontSize={13}
-            outerBorderColor="#d8af30"
-            outerBorderWidth={5}
+            textDistance={50}
+            outerBorderWidth={0}
+            radiusLineWidth={0}
             innerRadius={10}
             pointerProps={{
               src: "images/cubic-wheel-pointer.svg",
@@ -151,7 +220,7 @@ export default function SpinToWin() {
               width={0}
               height={0}
               sizes="20vw"
-              style={{ width: "7%", height: "auto" }}
+              style={{ width: "5%", height: "auto" }}
               className="object-contain"
             />
           </div>
@@ -167,31 +236,44 @@ export default function SpinToWin() {
               transition={{ duration: 0.5, ease: "easeInOut" }}
               className="w-[95%] mt-6"
             >
-              <h1 className="text-2xl font-semibold text-black text-center mb-2">
-                Cubic Customer Service Week 2025
+              <h1 className="text-3xl font-bold text-black text-center mb-2">
+                Exclusive Reward to our Loyal Clients
               </h1>
-              <p className="text-black text-sm text-center mb-4">
-                Win amazing prizes this customer service week with the spin the
-                wheel challenge.
+              <p className="text-black text-sm text-center mb-2">
+                Spin the wheel to win amazing prices
               </p>
 
-              <input
-                type="email"
-                placeholder="Enter your email..."
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={handleKeyPress}
-                disabled={mustSpin}
-                className="w-full text-sm border-2 bg-white border-[#E67220] rounded-[5px] mb-2 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#d8af30]"
-              />
+              <p className="text-[#292524] text-sm text-center mb-4 flex items-center justify-center gap-2">
+                <Info size={14} />
+                <span>
+                  Discounts and Free delivery are available on Next order
+                </span>
+              </p>
 
-              <button
-                onClick={handleStart}
-                disabled={mustSpin}
-                className="w-full cursor-pointer bg-[#070606] hover:bg-[#241f1f] text-[#FFB825] font-semibold py-3 rounded-[5px]"
+              <form
+                onSubmit={(e) => e.preventDefault()}
+                className="flex flex-col"
               >
-                {mustSpin ? "Spinning..." : "Spin Now"}
-              </button>
+                <input
+                  name={GOOGLE_FORM_FIELD_NAMES.Email}
+                  type="email"
+                  placeholder="Enter your email..."
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  onKeyDown={handleKeyPress}
+                  disabled={mustSpin}
+                  className="w-full text-sm border-2 bg-white border-[#E67220] rounded-[5px] mb-2 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#d8af30]"
+                />
+
+                <button
+                  onClick={handleStart}
+                  type="button"
+                  disabled={mustSpin && status === "Submitting..."}
+                  className="w-full cursor-pointer bg-[#070606] hover:bg-[#241f1f] text-[#FFB825] font-semibold py-3 rounded-[5px]"
+                >
+                  {mustSpin ? "Spinning..." : "Spin Now"}
+                </button>
+              </form>
             </motion.div>
           )}
 
@@ -214,12 +296,16 @@ export default function SpinToWin() {
                 </span>
               </p>
 
-              <button
-                onClick={() => toast.success("Redirect to WhatsApp")}
-                className="w-full cursor-pointer bg-[#070606] hover:bg-[#241f1f] text-[#FFB825] font-semibold py-3 rounded-[5px]"
+              <Link
+                href={`https://wa.me/+2349135491212?text=Hi%2C%20my%20name%20is%20______________.%20I%20won%20${spinResult}.`}
               >
-                Claim Now
-              </button>
+                <button
+                  onClick={() => toast.success("Redirect to WhatsApp")}
+                  className="w-full cursor-pointer bg-[#070606] hover:bg-[#241f1f] text-[#FFB825] font-semibold py-3 rounded-[5px]"
+                >
+                  Claim Now
+                </button>
+              </Link>
             </motion.div>
           )}
         </AnimatePresence>
